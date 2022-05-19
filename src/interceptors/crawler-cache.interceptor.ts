@@ -9,10 +9,10 @@ export class CrawlerCacheInterceptor extends CacheInterceptor {
         const type = context.getType();
 
         switch (type) {
-            case 'http':
-                const httpKey = super.trackBy(context);
-                this.logger._debug(`.trackBy: fetching from cache`, { key: httpKey });
-                return httpKey;
+            // case 'http':
+            //     const httpKey = super.trackBy(context);
+            //     this.logger._debug(`.trackBy: fetching from cache`, { key: httpKey });
+            //     return httpKey;
             case 'rpc':
                 const rpcKey = `${context.getClass().name}-${context.getHandler().name}-${JSON.stringify(
                     context.getArgByIndex(0),

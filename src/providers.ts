@@ -190,6 +190,7 @@ export const providers = [
         ],
         api: 'https://graph.facebook.com/v8.0/oembed_page?url=',
     },
+
     {
         name: 'youtube',
         endpoints: [

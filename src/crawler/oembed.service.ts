@@ -30,16 +30,16 @@ export class OembedService {
             return null;
         }
 
-        const endpoint = [OEMBED_PROVIDER_ENUMS.INSTAGRAM, OEMBED_PROVIDER_ENUMS.FACEBOOK].includes(
-            provider.name as OEMBED_PROVIDER_ENUMS,
-        )
+        const endpoint = [
+            OEMBED_PROVIDER_ENUMS.INSTAGRAM,
+            OEMBED_PROVIDER_ENUMS.FACEBOOK,
+        ].includes(provider.name as OEMBED_PROVIDER_ENUMS)
             ? `${provider.api}${url}&access_token=${this.FB_APP_ID}|${this.FB_CLIENT_TOKEN}`
             : `${provider.api}${url}`;
 
         this.logger._log('.getOEmbed', { url, provider: provider.name, endpoint });
 
         const { data } = await this.http.get(endpoint).toPromise();
-
         return { data, provider: provider.name };
     }
 

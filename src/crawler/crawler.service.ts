@@ -10,7 +10,6 @@ export class CrawlerService {
 
     async crawl(url: string): Promise<CrawlerResponseInterface> {
         const embed = await this.oembed.getOEmbed(url);
-
         if (embed) {
             const { data, provider } = embed;
             const meta = {
@@ -21,7 +20,6 @@ export class CrawlerService {
                 date: null,
                 html: data.html,
             };
-
             return {
                 meta,
                 provider,

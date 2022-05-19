@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { MetaLogger } from '@halonext/msgr-api-common';
 import { Injectable } from '@nestjs/common';
-import got from 'got';
 
 import { MetaScraperResponseInterfaces } from './meta-scraper.interfaces';
+const puppeteer = require('puppeteer');
 
 @Injectable()
 export class MetaScraperService {
@@ -34,7 +34,14 @@ export class MetaScraperService {
 
     async scrap(targetUrl: string): Promise<MetaScraperResponseInterfaces> {
         this.logger._log('.scrap', { targetUrl });
-        const { body: html, url } = await got(targetUrl);
-        return this.metaScraper({ html, url });
+        const browser = await puppeteer.launch({
+            headless: true,
+            timeout: 5000,
+        });
+        const page = await browser.newPage();
+        await page.goto(targetUrl, { waitUntil: 'networkidle0' });
+        const data = await page.evaluate(() => document.querySelector('*').outerHTML);
+
+        return this.metaScraper({ url: targetUrl, html: data });
     }
 }

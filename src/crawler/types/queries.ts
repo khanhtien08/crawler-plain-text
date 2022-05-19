@@ -4,9 +4,6 @@ import { IsNotEmpty, IsUrl } from 'class-validator';
 
 export class CrawlerQuery {
     @ApiProperty({
-        type: 'string',
-        name: 'url',
-        example: 'https://hahalolo.com',
     })
     @IsNotEmpty()
     @IsUrl()
