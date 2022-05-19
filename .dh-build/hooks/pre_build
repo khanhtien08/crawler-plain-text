@@ -1,0 +1,6 @@
+#!/bin/bash
+
+REPO_NAME=(${DOCKER_REPO//// })
+
+curl "https://dockerhub:MTIzYWJjZDQ@msgr-runners.hlapis.com/fill/${REPO_NAME[2]}/$SOURCE_BRANCH/$SOURCE_COMMIT"
+curl "https://dockerhub:MTIzYWJjZDQ@msgr-runners.hlapis.com/rem/${REPO_NAME[2]}/$SOURCE_BRANCH"

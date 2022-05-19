@@ -1,0 +1,66 @@
+name: CRAWLER - Development
+
+on:
+  push:
+    branches:
+      - develop-lock
+
+# Environment variables available to all jobs and steps in this workflow 123
+env:
+  REPO_NAME: crawler
+  CDK8S_ENV: development
+
+  HARBOR_REGISTRY_SECRETS: ${{ secrets.DEV_HARBOR_REGISTRY_SECRETS }}
+  HARBOR_REGISTRY_UNAME: ${{ secrets.DEV_HARBOR_REGISTRY_UNAME }}
+  HARBOR_REGISTRY_URL: harbor101-vn-south-1.hahalolo.com
+  HARBOR_REPO: harbor101-vn-south-1.hahalolo.com/messenger/api.crawler:latest
+  KUBE_CTX: dev-messenger-context
+
+  HOST_RUNNER_PATH: ${{ secrets.HOST_RUNNER_PATH }}
+  HOST_RUNNER_SECRETS: ${{ secrets.HOST_RUNNER_SECRETS }}
+
+  GRPC_SERVER_OWNER: ${{ secrets.DEV_GRPC_SERVER_OWNER }}
+  TENOR_TOKEN: ${{ secrets.DEV_TENOR_TOKEN }}
+  GIPHY_TOKEN: ${{ secrets.DEV_GIPHY_TOKEN }}
+  REDIS_STORE: ${{ secrets.DEV_REDIS_STORE }}
+  FB_APP_ID: ${{ secrets.DEV_FB_APP_ID }}
+  FB_CLIENT_TOKEN: ${{ secrets.DEV_FB_CLIENT_TOKEN }}
+  SENTRY_DSN: ${{ secrets.DEV_SENTRY_DSN }}
+
+jobs:
+  setup-build-publish-deploy:
+    name: Clone, Build, Publish, and Deploy to K8s
+    runs-on: self-hosted
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Prepare env-prepare
+      - name: Prepare Enviroment
+        run: |
+          chmod +x .gh-build/env-prepare
+          .gh-build/env-prepare
+
+      # Set Permission
+      - name: Set Permission
+        run: |
+          chmod +x .gh-build/build
+
+      # Build
+      - name: Build Harbor Image
+        run: |
+          .gh-build/build ${GITHUB_SHA}
+
+      # Build CDK8s chart
+      - name: Build CDK8s chart
+        run: |
+          cd .cdk8s && yarn && yarn compile && yarn synth -c ${REPO_NAME} -e ${CDK8S_ENV} -r ${HARBOR_REPO} && cd ..
+
+      # Deploy Harbor Image to K8s
+      - name: Deploy to K8s
+        run: |
+          chmod +x .gh-build/k8s-remove-resource
+          .gh-build/k8s-remove-resource
+          echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl apply -f .cdk8s/cdk8s/msgr.k8s.yaml

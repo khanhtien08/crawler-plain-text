@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "Building docker image for ${APP_ENV}"
+if [ "$APP_ENV" == "development-lock" ]; then
+  git clone "https://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@github.com/halonext/msgr-api-common"
+  cd msgr-api-common && yarn && yarn build && yarn link && cd ..
+  yarn link "@messenger/api.common"
+fi

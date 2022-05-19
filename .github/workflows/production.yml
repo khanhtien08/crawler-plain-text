@@ -1,0 +1,63 @@
+name: CRAWLER - Production
+
+on:
+  repository_dispatch:
+    types: [ production_push ]
+  release:
+    types:
+      - created
+
+      # Environment variables available to all jobs and steps in this workflow 1232
+env:
+  REPO_NAME: crawler
+  CDK8S_ENV: production
+
+  HARBOR_REGISTRY_SECRETS: ${{ secrets.PROD_HARBOR_REGISTRY_SECRETS }}
+  HARBOR_REGISTRY_UNAME: ${{ secrets.PROD_HARBOR_REGISTRY_UNAME }}
+  HARBOR_REGISTRY_URL: registry101-vn-south.hlcdn.net
+  HARBOR_REPO: registry101-vn-south.hlcdn.net/messenger/api.crawler:latest
+  KUBE_CTX: live-messenger-context
+
+  HOST_RUNNER_PATH: ${{ secrets.HOST_RUNNER_PATH }}
+  HOST_RUNNER_SECRETS: ${{ secrets.HOST_RUNNER_SECRETS }}
+
+  CASSANDRA_UNAME: ${{ secrets.PROD_CASSANDRA_UNAME }}
+  CASSANDRA_SECRETS: ${{ secrets.PROD_CASSANDRA_SECRETS }}
+
+jobs:
+  setup-build-publish-deploy:
+    name: Clone, Build, Publish, and Deploy to K8s
+    runs-on: self-hosted
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Prepare env-prepare
+      - name: Prepare Enviroment
+        run: |
+          chmod +x .gh-build/env-prepare
+          .gh-build/env-prepare
+
+      # Set Permission
+      - name: Set Permission
+        run: |
+          chmod +x .gh-build/build
+
+      # Build
+      - name: Build Harbor Image
+        run: |
+          .gh-build/build ${GITHUB_SHA}
+
+      # Build CDK8s chart
+      - name: Build CDK8s chart
+        run: |
+          cd .cdk8s && yarn && yarn compile && yarn synth -c ${REPO_NAME} -e ${CDK8S_ENV} -r ${HARBOR_REPO} && cd ..
+
+      # Deploy Harbor Image to K8s
+      - name: Deploy to K8s
+        run: |
+          chmod +x .gh-build/k8s-remove-resource
+          .gh-build/k8s-remove-resource
+          echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl apply -f .cdk8s/cdk8s/msgr.k8s.yaml

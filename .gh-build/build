@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+VERSION=${1}
+NAME=${2:-"messenger/api.crawler"}
+REGISTRY=${3:-${HARBOR_REGISTRY_URL}}
+IMAGE_NAME="${REGISTRY}/${NAME}"
+GITHUB_ENV=${4:-${GITHUB_REF##*/}}
+
+echo "Building docker image ${IMAGE_NAME}:${VERSION}"
+docker build --add-host=staticdocker:10.10.11.132 --add-host=npm.hahalolo.com:10.10.13.22 --add-host=harbor101-vn-south-1.hahalolo.com:10.10.14.200 --add-host=registry101-vn-south.hlcdn.net:172.16.53.9 -t "${IMAGE_NAME}" -f .gh-build/Dockerfile --build-arg APP_ENV=${CDK8S_ENV} .
+
+docker tag "${IMAGE_NAME}" "${IMAGE_NAME}:${VERSION}"
+docker tag "${IMAGE_NAME}" "${IMAGE_NAME}:latest"
+
+if [ -z "${1}" ]; then
+  echo "Please provide a specific version."
+  exit 1
+fi
+
+echo ${HOST_RUNNER_SECRETS} | echo ${HARBOR_REGISTRY_SECRETS} | sudo -S -k docker login ${REGISTRY} --username ${HARBOR_REGISTRY_UNAME} --password-stdin
+
+echo ${HOST_RUNNER_SECRETS} | sudo -S -k docker push "${REGISTRY}/${NAME}:${VERSION}"
+echo ${HOST_RUNNER_SECRETS} | sudo -S -k docker push "${REGISTRY}/${NAME}:latest"
+
+export HOME=${HOST_RUNNER_PATH}
+kubectx ${KUBE_CTX}

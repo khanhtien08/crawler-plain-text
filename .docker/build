@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+VERSION=${1}
+NAME=${2:-"messenger/api.crawler"}
+REGISTRY=${3:-"harbor101-vn-south-1.hahalolo.com"}
+IMAGE_NAME="${REGISTRY}/${NAME}"
+
+if [ -z "${1}" ]
+  then
+    echo "Please provide a specific version."
+    exit 1
+fi
+
+echo "Building docker image ${IMAGE_NAME}:${VERSION}."
+
+
+.docker build -t "${IMAGE_NAME}" -f .docker/Dockerfile .
+
+.docker tag "${IMAGE_NAME}" "${IMAGE_NAME}:${VERSION}"
+.docker tag "${IMAGE_NAME}" "${IMAGE_NAME}:latest"
+
+.docker push "${REGISTRY}/${NAME}:${VERSION}"
+.docker push "${REGISTRY}/${NAME}:latest"

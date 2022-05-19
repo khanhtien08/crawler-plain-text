@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Building docker image $IMAGE_NAME"
+docker build -f Dockerfile -t $IMAGE_NAME ../.
+echo "Building docker image $IMAGE_NAME"
+echo "Building docker image $SOURCE_BRANCH"
+echo "==================== FINISHED Building ====================="

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl get configmaps -o name >.gh-build/temp.txt
+RESOURCENAME=$(echo "${HOST_RUNNER_SECRETS}" | sudo -S -k grep -R "${REPO_NAME}" ".gh-build/temp.txt")
+if [ ! -z "${RESOURCENAME}" ]; then
+  echo $RESOURCENAME
+  echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl delete "${RESOURCENAME}"
+fi
+
+echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl get ingressroutes -o name >.gh-build/temp.txt
+RESOURCENAME=$(echo "${HOST_RUNNER_SECRETS}" | sudo -S -k grep -R "${REPO_NAME}" ".gh-build/temp.txt")
+if [ ! -z "${RESOURCENAME}" ]; then
+  echo $RESOURCENAME
+  echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl delete "${RESOURCENAME}"
+fi
+
+echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl get services -o name >.gh-build/temp.txt
+RESOURCENAME=$(echo "${HOST_RUNNER_SECRETS}" | sudo -S -k grep -R "${REPO_NAME}" ".gh-build/temp.txt")
+if [ ! -z "${RESOURCENAME}" ]; then
+  echo $RESOURCENAME
+  echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl delete "${RESOURCENAME}"
+fi
+
+echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl get pod -o name >.gh-build/temp.txt
+while read -r line; do
+  if [[ "$line" == *"$REPO_NAME"* ]]; then
+    echo "$line"
+        echo ${HOST_RUNNER_SECRETS} | sudo -S -k kubectl delete "${line}"
+  fi
+done < .gh-build/temp.txt

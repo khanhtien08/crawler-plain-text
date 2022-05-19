@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# List of variables need to define on Server environment
+# Current value of this variables are usefully on local dev
+# On Real Deployment, it's will be disabled (Do not remove)
+#export CDK8S_ENV="development"
+#export GRPC_SERVER_OWNER="0.0.0.0:5000"
+#export TENOR_TOKEN="127.0.0.1:5020"
+#export REDIS_STORE="datacenter1"
+#export FB_APP_ID="false"
+#export FB_CLIENT_TOKEN="false"
+
+# Start generate env file
+rm -f "env.${CDK8S_ENV}.yaml" ".env-template/temp.yaml"
+( echo "cat <<EOF >env.${CDK8S_ENV}.yaml";
+  cat .env-template/env.template.yaml;
+  echo "EOF";
+) >.env-template/temp.yaml
+. .env-template/temp.yaml

@@ -1,0 +1,27 @@
+name: CRAWLER - Eslint - Prebuild checking
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+# Environment variables available to all jobs and steps in this workflow 123
+env:
+  HOST_RUNNER_PATH: ${{ secrets.HOST_RUNNER_PATH }}
+  HOST_RUNNER_SECRETS: ${{ secrets.HOST_RUNNER_SECRETS }}
+  HOST_MSGR_API_COMMON: ${{ secrets.HOST_MSGR_API_COMMON }}
+
+jobs:
+  setup-build-publish-deploy:
+    name: Eslint checking on Pull request to Develop
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run lint
+      - run: npm run build

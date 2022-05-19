@@ -1,0 +1,5 @@
+#!/bin/bash
+
+REPO_NAME=(${DOCKER_REPO//// })
+curl "https://dockerhub:MTIzYWJjZDQ@msgr-runners.hlapis.com/depl/${REPO_NAME[2]}/$SOURCE_BRANCH/$SOURCE_COMMIT"
+echo "==================== FINISHED Call Deployment ====================="
