@@ -195,6 +195,7 @@ export const providers = [
         name: 'youtube',
         endpoints: [
             'https://www.youtube.com/watch*',
+            'https://www.youtube.com/watch?v=*',
             'https://youtube.com/watch*',
             'http://www.youtube.com/watch*',
             'http://youtube.com/watch*',

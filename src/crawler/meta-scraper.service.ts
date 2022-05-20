@@ -3,7 +3,7 @@ import { MetaLogger } from '@halonext/msgr-api-common';
 import { Injectable } from '@nestjs/common';
 
 import { MetaScraperResponseInterfaces } from './meta-scraper.interfaces';
-const puppeteer = require('puppeteer');
+import * as puppeteer from 'puppeteer';
 
 @Injectable()
 export class MetaScraperService {
